@@ -1,16 +1,31 @@
+import ddf.minim.*;
+import ddf.minim.ugens.*;
+
 import processing.video.*;
 
 Movie movie;
 boolean help=true;
 int movieWidth, movieHeight;
+float frequency=40; //hz
+
+Minim minim;
+AudioOutput out;
+
+Oscil      wave;
+
 void setup() {
   size(displayWidth, displayHeight);
   background(0);
   // Load and play the video in a loop
   movie = new Movie(this, "launch2.mp4");
   movie.loop();
-  frameRate(80);  //this is important
+  frameRate(frequency*2);  //this is important
   movieWidth=width/4;
+    // initialize the minim and out objects
+  minim = new Minim(this);
+  out   = minim.getLineOut();
+  wave = new Oscil( frequency, 1, Waves.SINE ); 
+  wave.patch( out );
 }
 
 void movieEvent(Movie m) {
@@ -66,5 +81,7 @@ void draw() {
     text("press 'o' to open video", 0, 40);
     text("press 'h' to toggle the help text", 0, 60);
     text("use up/down arrow keys to increase/decrease video size", 0, 80);
+    if(abs(frameRate-(2*frequency)) > frequency*.1)  // if greater than a 10% error in frequency, let us know
+      text("the actual frame rate is more than 10% lower than the requested framerate -- the strobing frequency is less than we'd like", 0, 100);
   }
 }
